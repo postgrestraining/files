@@ -1,3 +1,56 @@
+-> Ensure PostgreSQL software installed
+dnf install pgpool-II
+
+[or]
+
+dnf install https://download.postgresql.org/pub/repos/yum/15/redhat/rhel-8-x86_64/pgpool-II-pg15-extensions-4.4.2-1.rhel8.x86_64.rpm
+
+cp  /etc/pgpool-II/pgpool.conf.sample /etc/pgpool-II/pgpool.conf
+Edit the configuration file /etc/pgpool-II/pgpool.conf
+
+listen_addresses = '*'
+pcp_socket_dir = '/var/run/postgresql'
+unix_socket_directories = '/var/run/postgresql'
+allow_clear_text_frontend_auth = on        #optional
+pool_passwd = ''                           #optional
+
+# - Backend Connection Settings -
+
+backend_hostname0 = '192.168.110.171'                             
+backend_port0 = 5432
+backend_weight0 = 1
+backend_data_directory0 = '/u01/pgsql/15'
+backend_flag0 = 'ALLOW_TO_FAILOVER'                                 
+backend_application_name0 = 'server0'
+                                 
+backend_hostname1 = '192.168.110.172'
+backend_port1 = 5432
+backend_weight1 = 1
+backend_data_directory1 = '/u01/pgsql/15'
+backend_flag1 = 'ALLOW_TO_FAILOVER'
+backend_application_name1 = 'server1'
+
+sr_check_user = 'postgres'
+sr_check_password = 'postgres'
+sr_check_database = 'postgres'
+
+health_check_period =1
+
+health_check_user = 'postgres'
+health_check_password = 'postgres'
+health_check_database = 'postgres'
+
+touch /etc/pgpool-II/pool_passwd
+
+systemctl start pgpool-II
+
+[postgres@v3 ~]$ export PGPASSWORD=postgres
+[postgres@v3 ~]$ psql  -U postgres -p 9999 postgres  -c "show pool_nodes"
+
+touch /etc/pgpool-II/pool_passwd
+
+
+
 [root@lab01 pgpool-II]# echo 'some string' > ~/.pgpoolkey
 [root@lab01 pgpool-II]# chmod 600 ~/.pgpoolkey
 [root@lab01 pgpool-II]# pg_enc -m -f /etc/pgpool-II/pgpool.conf -i users.txt
