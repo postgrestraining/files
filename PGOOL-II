@@ -1,0 +1,24 @@
+[root@lab01 pgpool-II]# echo 'some string' > ~/.pgpoolkey
+[root@lab01 pgpool-II]# chmod 600 ~/.pgpoolkey
+[root@lab01 pgpool-II]# pg_enc -m -f /etc/pgpool-II/pgpool.conf -i users.txt
+trying to read key from file /root/.pgpoolkey
+trying to read username:password pairs from file users.txt
+[root@lab01 pgpool-II]#  cat /etc/pgpool-II/pool_passwd
+postgres:AESSS15+lhkJ3fYc4acUYrWtw==
+wklk+Y24wxTcO4=
+[root@lab01 pgpool-II]# su - postgres
+[postgres@lab01 ~]$ exit
+logout
+[root@lab01 pgpool-II]# systemctl restart pgpool-II
+[root@lab01 pgpool-II]# su - postgres
+[postgres@lab01 ~]$ psql  -U postgres -p 9999 postgres  -c "show pool_nodes"
+Password for user postgres:
+ node_id |    hostname     | port | status | pg_status | lb_weight |  role   | pg_role | select_cnt | load_balance_node | replicat
+ion_delay | replication_state | replication_sync_state | last_status_change
+---------+-----------------+------+--------+-----------+-----------+---------+---------+------------+-------------------+---------
+----------+-------------------+------------------------+---------------------
+ 0       | 192.168.110.194 | 5432 | up     | up        | 0.500000  | primary | primary | 0          | true              | 0
+          |                   |                        | 2023-12-31 13:27:47
+ 1       | 192.168.110.195 | 5432 | up     | up        | 0.500000  | standby | standby | 0          | false             | 0
+          |                   |                        | 2023-12-31 13:27:47
+(2 rows)
